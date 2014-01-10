@@ -1,0 +1,207 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package EyeTracking;
+
+import com.googlecode.javacv.cpp.postproc;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.Timer;
+
+/**
+ *
+ * @author XXX
+ */
+public class PicturesPanel extends javax.swing.JPanel implements ActionListener {
+
+    Timer tm = new Timer(50, this);
+    int tmp_X = 0;
+    int tmp_Y = 0;
+    private int licznik = -1;
+    private int[] vecXArray = new int[8];
+    private int[] vecYArray = new int[8];
+    private int _tmp_X;
+    private int _tmp_Y;
+
+    public void setTmp_X(int tmp_X) {
+        this.tmp_X = tmp_X;
+    }
+
+    public void setTmp_Y(int tmp_Y) {
+        this.tmp_Y = tmp_Y;
+    }
+    private final double scrW;
+    private final double scrH;
+    public static ArrayList<EstimationResults> poinList = new ArrayList<EstimationResults>();
+    public static ArrayList<EstimationResults> resultList = new ArrayList<EstimationResults>();
+    int time = 0;
+    int x = 0;
+    int y = 0;
+    private File file;
+    private boolean G_point = false;
+
+    public void setG_point(boolean G_point) {
+        this.G_point = G_point;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void resetCordinates() {
+        x = 0;
+        y = 0;
+    }
+
+    /**
+     * Creates new form PicturesPanel
+     */
+    public PicturesPanel() {
+        initComponents();
+        Toolkit screenSize = Toolkit.getDefaultToolkit();
+        Dimension scrSize = screenSize.getScreenSize();
+        scrW = scrSize.getWidth();
+        scrH = scrSize.getHeight();
+
+    }
+    private BufferedImage image;
+
+    public void setImage() {
+
+        try {
+            if (file != null) {
+                image = ImageIO.read(file);
+            } else {
+                image = ImageIO.read(new File("testowy.jpg"));
+            }
+        } catch (IOException ex) {
+            System.out.println("Błąd pliku");
+            // handle exception...
+        }
+    }
+
+    private Ellipse2D getEllipseFromCenter(double x, double y, double width, double height) {
+        double newX = x - width / 2.0;
+        double newY = y - height / 2.0;
+
+        Ellipse2D ellipse = new Ellipse2D.Double(newX, newY, width, height);
+
+        return ellipse;
+    }
+
+    @Override
+    public void paint(Graphics g) {
+
+        Graphics2D g2 = (Graphics2D) g;
+        int tmpX = (int) (scrW / 2) - image.getWidth() / 2;
+        int tmpY = (int) (scrH / 2) - image.getHeight() / 2;
+
+        super.paintComponent(g2);
+
+        g.drawImage(image, tmpX, tmpY, null); // see javadoc for more info on the parameters     
+
+        if (G_point == true) {
+            licznik++;
+            if (licznik == 8) {
+                licznik = 0;
+            }
+            vecXArray[licznik] = tmp_X;
+            vecYArray[licznik] = tmp_Y;
+//         Arrays.sort(vecXArray);
+//        Arrays.sort(vecYArray);
+
+            _tmp_X = vecXArray[0] + vecXArray[1] + vecXArray[2] + vecXArray[3] + vecXArray[4] + vecXArray[5] + vecXArray[6] + vecXArray[7];//+vecXArray[8]+vecXArray[9]+vecXArray[10]+vecXArray[11];
+            _tmp_Y = vecYArray[0] + vecYArray[1] + vecYArray[2] + vecYArray[3] + vecYArray[4] + vecYArray[5] + vecYArray[6] + vecYArray[7];//+vecYArray[8]+vecYArray[9]+vecYArray[10]+vecYArray[11];
+
+
+            _tmp_X = _tmp_X / 8;
+            _tmp_Y = _tmp_Y / 8;
+
+            g2.setColor(Color.red);
+            //   System.out.println("Paint TMP X & Y "+tmp_X+" "+tmp_Y);
+            g2.draw(getEllipseFromCenter(_tmp_X, _tmp_Y, 8, 8));
+        }
+
+
+
+
+    }
+
+    public static void addEstimationPoint(EstimationResults es) {
+        poinList.add(es);
+    }
+
+    public static void saveEstimationResults() {
+        System.out.println("Estimation saving");
+
+        for (EstimationResults s : poinList) {
+            System.out.println(s);
+            System.out.println("PRINT POINT LIST");
+        }
+        VectorSaveAndLoad.saveEstimationResults(poinList, "EstimationResults");
+        System.out.println("Estimation saved");
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        setBackground(new java.awt.Color(0, 0, 0));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+//        tmp_X++;
+//        tmp_Y++;
+        repaint();
+        System.out.println("PP Reapint");
+
+
+    }
+}
